@@ -1,0 +1,61 @@
+body {
+  background:#f5f7fb;
+  font-family:'Montserrat', sans-serif;
+}
+
+.prescription-paper {
+  width:210mm;
+  min-height:297mm;
+  padding:18mm;
+  background:white;
+  color:#111;
+  font-size:12pt;
+  line-height:1.25;
+  position:relative;
+}
+
+.clinic-logo {
+  max-width:90px;
+  max-height:90px;
+}
+
+.extra-sections {
+  display:flex;
+  justify-content:space-between;
+}
+
+.signature-line {
+  margin-top:40px;
+  width:200px;
+  height:40px;
+  border-top:1px solid #000;
+  margin-left:auto;
+}
+
+.med-table {
+  width:100%;
+  margin-top:12px;
+  border-collapse:collapse;
+}
+
+.med-table td {
+  padding:6px 4px;
+  border-bottom:1px solid #ccc;
+  font-size:11pt;
+}
+
+.footer {
+  text-align:center;
+  margin-top:20px;
+  font-size:10pt;
+  opacity:0.7;
+  position:absolute;
+  bottom:18mm;
+  width:100%;
+}
+
+@media print {
+  body * { visibility:hidden; }
+  #prescriptionTemplate, #prescriptionTemplate * { visibility:visible; }
+  #prescriptionTemplate { position:absolute; left:0; top:0; }
+}
