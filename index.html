@@ -2,83 +2,184 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prescription Builder</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #001f3f;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #001f3f;
+    }
+    header .subtitle {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+    section {
+      margin-top: 20px;
+    }
+    section label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    section input, section textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .medicine-list table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    .medicine-list th, .medicine-list td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .medicine-list th {
+      background-color: #e6f0ff;
+    }
+    button {
+      background-color: #001f3f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #003366;
+    }
+    /* Print Styling */
+    @media print {
+      body { background: white; color: black; }
+      button, #addRow { display: none; }
+      .container { box-shadow: none; padding: 0; }
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
+  <div class="container">
+    <header>
+      <h1>City Clinic</h1>
+      <p class="subtitle">Prescription</p>
+    </header>
 
-  <h1>Prescription Builder</h1>
-
-  <div class="grid">
-
-    <!-- LEFT COLUMN -->
-    <div>
-
-      <!-- HEADER -->
-      <div class="card">
-        <div class="section-title">Doctor Information</div>
-        <input id="docname" placeholder="Dr. A B C, MBBS, FCPS">
-        <input id="clinic" placeholder="City Clinic">
-        <input id="address" placeholder="12 Main Rd, Dhaka">
-        <input id="phone" placeholder="+88017xxxxxxxx">
+    <section class="patient-info">
+      <div>
+        <label>Patient Name:</label>
+        <input type="text" id="patientName" placeholder="Enter name">
       </div>
-
-      <!-- PATIENT -->
-      <div class="card">
-        <div class="section-title">Patient Info</div>
-        <input id="pname" placeholder="Patient Name">
-        <input id="page" placeholder="Age">
-        <input id="psex" placeholder="Sex">
-        <input id="pmobile" placeholder="Mobile">
-        <input id="pdate" placeholder="Date (YYYY-MM-DD)">
+      <div>
+        <label>Age/Sex:</label>
+        <input type="text" id="ageSex" placeholder="Age / Sex">
       </div>
-
-      <!-- CC / OE / INV -->
-      <div class="card">
-        <div class="section-title">C/C</div>
-        <textarea id="cc"></textarea>
-
-        <div class="section-title">O/E</div>
-        <textarea id="oe"></textarea>
-
-        <div class="section-title">Investigations</div>
-        <textarea id="invest"></textarea>
+      <div>
+        <label>Date:</label>
+        <input type="date" id="date">
       </div>
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div>
-
-      <!-- RX -->
-      <div class="card">
-        <div class="section-title">Rx</div>
-
-        <div id="medlist"></div>
-
-        <input id="medtext" placeholder="Medicine name, dose & schedule">
-        <button class="btn" onclick="addMed()">Add Medicine</button>
-
-        <div class="section-title" style="margin-top:20px;">Advice</div>
-        <textarea id="advice"></textarea>
+      <div>
+        <label>Mobile:</label>
+        <input type="text" id="mobile" placeholder="Phone Number">
       </div>
+    </section>
 
-      <!-- ACTION BUTTONS -->
-      <div class="card no-print" style="margin-top:20px;">
-        <button class="btn" onclick="loadSample()">Load Sample</button>
-        <button class="btn" onclick="saveData()">Save</button>
-        <button class="btn" onclick="exportJSON()">Export JSON</button>
-        <button class="btn" onclick="document.getElementById('fileinput').click()">Import JSON</button>
-        <button class="btn" onclick="window.print()">Print</button>
+    <section class="clinical-notes">
+      <div>
+        <label>Chief Complaint (C/C):</label>
+        <textarea id="cc" placeholder="Enter chief complaint"></textarea>
       </div>
+      <div>
+        <label>O/E Findings:</label>
+        <textarea id="oe" placeholder="On Examination"></textarea>
+      </div>
+      <div>
+        <label>Investigations:</label>
+        <textarea id="investigation" placeholder="Lab / Imaging"></textarea>
+      </div>
+      <div>
+        <label>Advice / Diagnosis:</label>
+        <textarea id="advice" placeholder="Advice / Diagnosis"></textarea>
+      </div>
+    </section>
 
-      <input type="file" id="fileinput" class="no-print" style="display:none">
+    <section class="medicine-list">
+      <h2>Medicines</h2>
+      <table id="medTable">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Dosage</th>
+            <th>Frequency</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td contenteditable="true">Paracetamol</td>
+            <td contenteditable="true">500mg</td>
+            <td contenteditable="true">3x/day</td>
+            <td contenteditable="true">5 days</td>
+          </tr>
+        </tbody>
+      </table>
+      <button id="addRow">Add Medicine</button>
+    </section>
 
-    </div>
+    <section class="actions">
+      <button id="previewBtn">Preview</button>
+      <button onclick="window.print()">Print / Save PDF</button>
+    </section>
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script>
+    // Add new row to medicine table
+    document.getElementById('addRow').addEventListener('click', function() {
+      const table = document.getElementById('medTable').getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+      for(let i=0; i<4; i++){
+        const cell = newRow.insertCell(i);
+        cell.contentEditable = "true";
+        cell.innerText = "";
+      }
+    });
+
+    // Preview alert
+    document.getElementById('previewBtn').addEventListener('click', function() {
+      const patient = document.getElementById('patientName').value;
+      const ageSex = document.getElementById('ageSex').value;
+      const date = document.getElementById('date').value;
+      const mobile = document.getElementById('mobile').value;
+      const cc = document.getElementById('cc').value;
+      const oe = document.getElementById('oe').value;
+      const investigation = document.getElementById('investigation').value;
+      const advice = document.getElementById('advice').value;
+      alert(
+        `Patient: ${patient}\nAge/Sex: ${ageSex}\nDate: ${date}\nMobile: ${mobile}\n\nC/C: ${cc}\nO/E: ${oe}\nInvestigation: ${investigation}\nAdvice: ${advice}`
+      );
+    });
+  </script>
 </body>
 </html>
