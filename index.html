@@ -1,198 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prescription (Printable – Hide data entry on print)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prescription Builder — Entry & Print Preview</title>
   <style>
-    /* General styling */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .entry-form, .controls { margin-bottom: 20px; }
+    .prescription-output { display: none; }
+
+    /* Print styles */
+    @media print {
+      .entry-form, .controls { display: none !important; }
+      .prescription-output { display: block !important; }
     }
 
-    /* Clinic header */
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
+    /* Simple styling for prescription output */
+    .prescription-output .header { text-align: center; margin-bottom: 20px; }
+    .prescription-output .patient-info div {
+      margin-bottom: 6px;
     }
-    .header img.logo {
-      max-height: 80px;
-      margin-bottom: 10px;
-    }
-    .header .clinic-name {
-      font-size: 24px; font-weight: bold; color: #001f3f;
-    }
-    .header .clinic-details {
-      font-size: 14px; color: #333; margin-top: 4px;
-    }
-
-    hr.divider {
-      border: none;
-      border-top: 1px solid #999;
-      margin: 20px 0;
-    }
-
-    /* Patient info & meta */
-    .patient-info, .clinical-info {
-      margin-bottom: 15px;
-    }
-    .patient-info .row, .clinical-info .row {
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .patient-info .row div,
-    .clinical-info .row div {
-      flex: 1 1 200px;
-      padding-right: 10px;
-    }
-    .patient-info label, .clinical-info label {
-      font-weight: bold;
-      font-size: 14px;
-    }
-    .patient-info span, .clinical-info span {
-      font-size: 14px;
-      color: #000;
-    }
-
-    /* Medicines table */
-    .medicines {
-      margin-top: 15px;
-      margin-bottom: 20px;
-    }
-    .medicines table {
+    .prescription-output .medicines table {
       width: 100%;
       border-collapse: collapse;
     }
-    .medicines th, .medicines td {
+    .prescription-output .medicines th,
+    .prescription-output .medicines td {
       border: 1px solid #444;
-      padding: 6px 8px;
-      font-size: 14px;
+      padding: 6px;
       text-align: left;
     }
-    .medicines th {
-      background-color: #e6f0ff;
+    .prescription-output .medicines th {
+      background: #eee;
     }
-
-    /* Signature/footer */
-    .footer {
-      margin-top: 40px;
-    }
-    .footer .signature-block {
-      float: right;
-      text-align: center;
-      margin-top: 60px;
-    }
-    .footer .signature-block .line {
-      border-top: 1px solid #000;
-      width: 200px;
-      margin: 0 auto;
-      height: 0;
-    }
-    .footer .signature-block .doctor-name {
-      margin-top: 4px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-      .patient-info .row div, .clinical-info .row div {
-        flex: 1 1 100%;
-        padding-right: 0;
-      }
-    }
-
-    /* Print styling */
-    @media print {
-      body { background: white; font-family: Calibri, sans-serif; }
-      .entry-form { display: none !important; }
-      .container { box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-    }
+    .signature { margin-top: 40px; text-align: right; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Header / Clinic Info -->
-    <div class="header">
-      <!-- Optional logo -->
-      <!-- <img src="logo.png" class="logo" alt="Clinic Logo"> -->
-      <div class="clinic-name">City Clinic</div>
-      <div class="clinic-details">Address, City — Phone: 0123‑456789</div>
-    </div>
 
-    <hr class="divider">
-
-    <!-- Prescription output (will always be visible, including print) -->
-    <div class="prescription-output">
-      <div class="patient-info">
-        <div class="row">
-          <div><label>Patient Name:</label> <span id="pvName"></span></div>
-          <div><label>Age / Sex:</label> <span id="pvAgeSex"></span></div>
-        </div>
-        <div class="row">
-          <div><label>Date:</label> <span id="pvDate"></span></div>
-          <div><label>Mobile:</label> <span id="pvMobile"></span></div>
-        </div>
-      </div>
-
-      <div class="clinical-info">
-        <div><label>Complaint / History:</label> <span id="pvCC"></span></div>
-        <div><label>O/E / Findings:</label> <span id="pvOE"></span></div>
-        <div><label>Investigations:</label> <span id="pvInvestigation"></span></div>
-        <div><label>Diagnosis / Advice:</label> <span id="pvAdvice"></span></div>
-      </div>
-
-      <div class="medicines">
-        <table id="pvMedTable">
-          <thead>
-            <tr><th>#</th><th>Medicine</th><th>Dosage / Frequency</th><th>Duration / Instruction</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="footer">
-        <div class="signature-block">
-          <div class="line"></div>
-          <div class="doctor-name">Dr. __________________</div>
-        </div>
-        <div style="clear: both;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data‑entry form (only for screen, hidden when printing) -->
+  <!-- Data‑entry form -->
   <div class="entry-form">
-    <!-- Place your input fields, textareas, medicine table editors, buttons here -->
-    <!-- Example: -->
     <h2>Enter Prescription Data</h2>
     <label>Patient Name: <input type="text" id="patientName"></label><br>
-    <!-- etc... -->
-    <!-- plus a Preview button that populates the above prescription-output -->
-    <!-- plus a Print button that uses window.print() -->
+    <label>Age / Sex: <input type="text" id="ageSex"></label><br>
+    <label>Date: <input type="date" id="date"></label><br>
+    <label>Mobile: <input type="text" id="mobile"></label><br>
+
+    <label>Complaint / History:<br>
+      <textarea id="cc" rows="2" cols="40"></textarea>
+    </label><br>
+    <label>On Exam / Findings:<br>
+      <textarea id="oe" rows="2" cols="40"></textarea>
+    </label><br>
+    <label>Diagnosis / Advice:<br>
+      <textarea id="advice" rows="2" cols="40"></textarea>
+    </label><br>
+
+    <h3>Medicines</h3>
+    <div id="medList">
+      <!-- one row initially -->
+      <div class="med-row">
+        <input type="text" placeholder="Medicine name" class="med-name">
+        <input type="text" placeholder="Dose / Freq" class="med-dose">
+        <input type="text" placeholder="Duration / Instruction" class="med-duration">
+      </div>
+    </div>
+    <button id="addMed">Add Another Medicine</button>
+  </div>
+
+  <div class="controls">
+    <button id="previewPrint">Preview & Print</button>
+  </div>
+
+  <!-- Prescription output (for print) -->
+  <div class="prescription-output">
+    <div class="header">
+      <div><strong>City Clinic</strong></div>
+      <div>Address, Contact Info</div>
+    </div>
+    <div class="patient-info">
+      <div><strong>Patient Name:</strong> <span id="pvName"></span></div>
+      <div><strong>Age / Sex:</strong> <span id="pvAgeSex"></span></div>
+      <div><strong>Date:</strong> <span id="pvDate"></span></div>
+      <div><strong>Mobile:</strong> <span id="pvMobile"></span></div>
+    </div>
+    <div class="clinical-info">
+      <div><strong>Complaint / History:</strong> <span id="pvCC"></span></div>
+      <div><strong>On Exam / Findings:</strong> <span id="pvOE"></span></div>
+      <div><strong>Diagnosis / Advice:</strong> <span id="pvAdvice"></span></div>
+    </div>
+    <div class="medicines">
+      <table id="pvMedTable">
+        <thead>
+          <tr><th>#</th><th>Medicine</th><th>Dose / Freq</th><th>Duration / Instruction</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="signature">
+      <div>Doctor’s Signature: ____________________</div>
+    </div>
   </div>
 
   <script>
-    // Example: function to populate prescription-output from data-entry form
-    function applyData() {
-      document.getElementById('pvName').innerText = document.getElementById('patientName').value || '';
-      // ... similarly for other fields
-      // For medicines: build table rows etc
-    }
+    document.getElementById('addMed').addEventListener('click', function(){
+      const div = document.createElement('div');
+      div.className = 'med-row';
+      div.innerHTML = '<input type="text" placeholder="Medicine name" class="med-name"> ' +
+                      '<input type="text" placeholder="Dose / Freq" class="med-dose"> ' +
+                      '<input type="text" placeholder="Duration / Instruction" class="med-duration">';
+      document.getElementById('medList').append(div);
+    });
 
-    // Example: you would call applyData() when user clicks Preview
+    document.getElementById('previewPrint').addEventListener('click', function(){
+      // copy values
+      document.getElementById('pvName').innerText = document.getElementById('patientName').value;
+      document.getElementById('pvAgeSex').innerText = document.getElementById('ageSex').value;
+      document.getElementById('pvDate').innerText = document.getElementById('date').value;
+      document.getElementById('pvMobile').innerText = document.getElementById('mobile').value;
+      document.getElementById('pvCC').innerText = document.getElementById('cc').value;
+      document.getElementById('pvOE').innerText = document.getElementById('oe').value;
+      document.getElementById('pvAdvice').innerText = document.getElementById('advice').value;
+
+      // medicines
+      const medRows = document.querySelectorAll('.med-row');
+      const tbody = document.getElementById('pvMedTable').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = '';
+      medRows.forEach((r,i) => {
+        const name = r.querySelector('.med-name').value;
+        const dose = r.querySelector('.med-dose').value;
+        const dur = r.querySelector('.med-duration').value;
+        if (name.trim() !== '') {
+          const tr = tbody.insertRow();
+          tr.insertCell(0).innerText = i + 1;
+          tr.insertCell(1).innerText = name;
+          tr.insertCell(2).innerText = dose;
+          tr.insertCell(3).innerText = dur;
+        }
+      });
+
+      // show output and invoke print
+      document.querySelector('.prescription-output').style.display = 'block';
+      window.print();
+      // after print, optionally you could show form again:
+      // document.querySelector('.prescription-output').style.display = 'none';
+    });
   </script>
+
 </body>
 </html>
