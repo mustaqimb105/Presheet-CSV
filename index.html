@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prescription Builder — With Doctor Info</title>
+  <title>Prescription Builder — With Signature Footer</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 10px; }
@@ -19,8 +19,10 @@
     }
     .med-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     .med-row input { flex: 1 1 auto; min-width: 100px; }
-    button { padding: 8px 14px; background: #007BFF; color: white; border: none;
-             border-radius: 4px; cursor: pointer; margin-right: 4px; }
+    button {
+      padding: 8px 14px; background: #007BFF; color: white;
+      border: none; border-radius: 4px; cursor: pointer; margin-right: 4px;
+    }
     button:hover { background: #0056b3; }
 
     .preview-panel { display: none; }
@@ -28,31 +30,18 @@
       background: white; padding: 20px; border-radius: 6px;
       border: 1px solid #ccc; font-size: 14px; color: #000;
       position: relative;
+      min-height: 500px;
     }
 
-    /* Header: left = clinic name; right = doctor info */
-    .preview-output .header {
-      width: 100%; margin-bottom: 15px;
-      overflow: hidden;
-    }
-    .header-left {
-      float: left;
-      width: 60%;
-    }
-    .header-right {
-      float: right;
-      width: 38%;
-      text-align: right;
-      font-size: 14px;
-    }
-    .header-left .clinic-name {
-      font-size: 20px; font-weight: bold;
-    }
+    /* Header: clinic left, doctor info right */
+    .preview-output .header { width: 100%; margin-bottom: 15px; overflow: hidden; }
+    .header-left { float: left; width: 60%; }
+    .header-right { float: right; width: 38%; text-align: right; font-size: 14px; }
+    .header-left .clinic-name { font-size: 20px; font-weight: bold; }
     .after-header { clear: both; }
 
-    .preview-output .meta div, .preview-output .notes div {
-      margin-bottom: 6px;
-    }
+    .preview-output .meta div, .preview-output .notes div { margin-bottom: 6px; }
+
     .preview-output .medicines table {
       width: 100%; border-collapse: collapse; margin-top: 10px;
     }
@@ -60,7 +49,19 @@
       border: 1px solid #444; padding: 6px 8px; text-align: left; font-size: 14px;
     }
     .preview-output .medicines th { background: #e6f0ff; }
-    .preview-output .signature { margin-top: 30px; text-align: right; }
+
+    /* Signature in footer, right-aligned */
+    .preview-output .footer {
+      margin-top: 40px;
+      text-align: right;
+      font-size: 14px;
+    }
+    .preview-output .footer .signature-line {
+      display: inline-block;
+      border-top: 1px solid #000;
+      padding-top: 4px;
+      width: 200px;
+    }
 
     @media print {
       body { background: white; font-family: Calibri, sans-serif; margin:0; padding:0; }
@@ -71,9 +72,8 @@
   </style>
 </head>
 <body>
-
   <div class="split-container">
-    <!-- Data Entry Panel -->
+    <!-- Data‑Entry Panel -->
     <div class="panel entry-panel">
       <h2>Enter Prescription + Doctor Info</h2>
 
@@ -162,8 +162,8 @@
           </table>
         </div>
 
-        <div class="signature">
-          <div>Doctor’s Signature: ____________________________</div>
+        <div class="footer">
+          <div class="signature-line">Doctor’s Signature</div>
         </div>
       </div>
     </div>
@@ -199,7 +199,7 @@
       medRows.forEach((r,i) => {
         const name = r.querySelector('.med-name').value.trim();
         const dose = r.querySelector('.med-dose').value.trim();
-        const dur  = r.querySelector('.med-duration').value.trim();
+        const dur = r.querySelector('.med-duration').value.trim();
         if (name !== '') {
           const tr = tbody.insertRow();
           tr.insertCell(0).innerText = i + 1;
@@ -223,7 +223,6 @@
     });
 
     document.getElementById('clearBtn').addEventListener('click', function(){
-      // Reload page to reset everything
       location.reload();
     });
   </script>
