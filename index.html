@@ -3,38 +3,67 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prescription Builder with Clear All</title>
+  <title>Prescription Builder — With Doctor Info</title>
   <style>
-    /* [same CSS as before for layout] */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 10px; }
     .split-container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: auto; }
     .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     .entry-panel { flex: 1 1 400px; min-width: 300px; }
     .preview-panel { flex: 1 1 400px; min-width: 300px; }
-    .entry-panel h2 { margin-bottom: 10px; }
+
     .entry-panel label { display: block; margin-bottom: 6px; font-weight: bold; }
-    .entry-panel input, .entry-panel textarea { width: 100%; padding: 6px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .entry-panel input, .entry-panel textarea {
+      width: 100%; padding: 6px; margin-bottom: 10px;
+      border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+    }
     .med-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     .med-row input { flex: 1 1 auto; min-width: 100px; }
-    button { padding: 8px 14px; background: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 4px; }
+    button { padding: 8px 14px; background: #007BFF; color: white; border: none;
+             border-radius: 4px; cursor: pointer; margin-right: 4px; }
     button:hover { background: #0056b3; }
 
     .preview-panel { display: none; }
-    .preview-output { background: white; padding: 20px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; color: #000; }
-    .preview-output .header { text-align: center; margin-bottom: 15px; line-height: 1.2; }
-    .preview-output .header .clinic-name { font-size: 20px; font-weight: bold; }
-    .preview-output .header .doctor-name { font-size: 16px; margin-top: 4px; }
-    .preview-output .header .clinic-details { font-size: 14px; margin-top: 2px; }
-    .preview-output .meta div,
-    .preview-output .notes div { margin-bottom: 6px; }
-    .preview-output .medicines table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .preview-output .medicines th, .preview-output .medicines td { border: 1px solid #444; padding: 6px 8px; text-align: left; font-size: 14px; }
+    .preview-output {
+      background: white; padding: 20px; border-radius: 6px;
+      border: 1px solid #ccc; font-size: 14px; color: #000;
+      position: relative;
+    }
+
+    /* Header: left = clinic name; right = doctor info */
+    .preview-output .header {
+      width: 100%; margin-bottom: 15px;
+      overflow: hidden;
+    }
+    .header-left {
+      float: left;
+      width: 60%;
+    }
+    .header-right {
+      float: right;
+      width: 38%;
+      text-align: right;
+      font-size: 14px;
+    }
+    .header-left .clinic-name {
+      font-size: 20px; font-weight: bold;
+    }
+    .after-header { clear: both; }
+
+    .preview-output .meta div, .preview-output .notes div {
+      margin-bottom: 6px;
+    }
+    .preview-output .medicines table {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+    }
+    .preview-output .medicines th, .preview-output .medicines td {
+      border: 1px solid #444; padding: 6px 8px; text-align: left; font-size: 14px;
+    }
     .preview-output .medicines th { background: #e6f0ff; }
     .preview-output .signature { margin-top: 30px; text-align: right; }
 
     @media print {
-      body { background: white; font-family: Calibri, sans-serif; }
+      body { background: white; font-family: Calibri, sans-serif; margin:0; padding:0; }
       .entry-panel { display: none !important; }
       .preview-panel { display: block !important; }
       button, .med-row input { display: none; }
@@ -42,42 +71,43 @@
   </style>
 </head>
 <body>
+
   <div class="split-container">
     <!-- Data Entry Panel -->
     <div class="panel entry-panel">
-      <h2>Enter Prescription & Doctor Info</h2>
+      <h2>Enter Prescription + Doctor Info</h2>
 
       <label>Clinic / Hospital Name:</label>
       <input type="text" id="clinicName" placeholder="e.g. City Clinic">
 
       <label>Doctor Name & Qualification:</label>
-      <input type="text" id="doctorName" placeholder="e.g. Dr. John Doe, MBBS, MD">
+      <input type="text" id="doctorName" placeholder="e.g. Dr. John Doe, MBBS">
 
       <label>Clinic Address & Phone:</label>
       <input type="text" id="clinicDetails" placeholder="Address, City — Phone">
 
-      <hr style="margin: 12px 0;" />
+      <hr style="margin:12px 0;">
 
       <label>Patient Name:</label>
-      <input type="text" id="patientName" placeholder="Name">
+      <input type="text" id="patientName">
 
       <label>Age / Sex:</label>
-      <input type="text" id="ageSex" placeholder="e.g. 32 / M">
+      <input type="text" id="ageSex">
 
       <label>Date:</label>
       <input type="date" id="date">
 
       <label>Mobile:</label>
-      <input type="text" id="mobile" placeholder="Phone">
+      <input type="text" id="mobile">
 
       <label>Complaint / History:</label>
-      <textarea id="cc" placeholder="Chief complaint / history"></textarea>
+      <textarea id="cc"></textarea>
 
       <label>O/E / Findings:</label>
-      <textarea id="oe" placeholder="On examination / findings"></textarea>
+      <textarea id="oe"></textarea>
 
       <label>Diagnosis / Advice:</label>
-      <textarea id="advice" placeholder="Diagnosis / advice"></textarea>
+      <textarea id="advice"></textarea>
 
       <h3>Medicines</h3>
       <div id="medList">
@@ -87,12 +117,12 @@
           <input type="text" placeholder="Duration / Instruction" class="med-duration">
         </div>
       </div>
-      <button id="addMed">Add Another Medicine</button>
+      <button id="addMed">Add Medicine</button>
 
       <div style="margin-top:20px;">
         <button id="previewBtn">Show Preview</button>
         <button id="printBtn">Preview & Print</button>
-        <button id="clearBtn" type="button" style="background:#dc3545">Clear All</button>
+        <button id="clearBtn" style="background:#dc3545">Clear All</button>
       </div>
     </div>
 
@@ -100,9 +130,14 @@
     <div class="panel preview-panel">
       <div class="preview-output" id="previewOutput">
         <div class="header">
-          <div class="clinic-name" id="pvClinicName"></div>
-          <div class="doctor-name" id="pvDoctorName"></div>
-          <div class="clinic-details" id="pvClinicDetails"></div>
+          <div class="header-left">
+            <div class="clinic-name" id="pvClinicName"></div>
+          </div>
+          <div class="header-right">
+            <div id="pvDoctorName"></div>
+            <div id="pvClinicDetails"></div>
+          </div>
+          <div class="after-header"></div>
         </div>
 
         <div class="meta">
@@ -120,7 +155,9 @@
 
         <div class="medicines">
           <table id="pvMedTable">
-            <thead><tr><th>#</th><th>Medicine</th><th>Dose & Freq</th><th>Duration / Instruction</th></tr></thead>
+            <thead>
+              <tr><th>#</th><th>Medicine</th><th>Dose & Freq</th><th>Duration / Instruction</th></tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
@@ -186,31 +223,8 @@
     });
 
     document.getElementById('clearBtn').addEventListener('click', function(){
-      // clear all input fields
-      document.getElementById('clinicName').value = '';
-      document.getElementById('doctorName').value = '';
-      document.getElementById('clinicDetails').value = '';
-      document.getElementById('patientName').value = '';
-      document.getElementById('ageSex').value = '';
-      document.getElementById('date').value = '';
-      document.getElementById('mobile').value = '';
-      document.getElementById('cc').value = '';
-      document.getElementById('oe').value = '';
-      document.getElementById('advice').value = '';
-
-      // remove all medicine rows except first blank row
-      const medList = document.getElementById('medList');
-      medList.innerHTML = '';
-      const first = document.createElement('div');
-      first.className = 'med-row';
-      first.innerHTML =
-        '<input type="text" placeholder="Medicine name" class="med-name">' +
-        '<input type="text" placeholder="Dose & Freq" class="med-dose">' +
-        '<input type="text" placeholder="Duration / Instruction" class="med-duration">';
-      medList.append(first);
-
-      // hide preview if visible
-      document.querySelector('.preview-panel').style.display = 'none';
+      // Reload page to reset everything
+      location.reload();
     });
   </script>
 </body>
