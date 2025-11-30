@@ -1,122 +1,112 @@
+/* Fonts + Base Theme */
 body {
     margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
-    background: #f4f6ff;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.3s ease;
 }
 
-.container {
-    display: flex;
-    height: 100vh;
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --card-bg: #f5f7ff;
+    --accent: #003d99;
 }
 
-/* LEFT SIDE ENTRY */
-.entry-panel {
-    width: 40%;
-    padding: 20px;
-    background: #ffffff;
-    overflow-y: scroll;
-    border-right: 2px solid #d0d0d0;
+body.dark {
+    --bg: #0f141a;
+    --text: #e6e6e6;
+    --card-bg: #1c2530;
+    --accent: #4d9aff;
 }
 
-.entry-panel h3 {
-    margin-top: 18px;
-    font-size: 18px;
-    color: #002060;
-}
-
-.entry-panel input,
-.entry-panel textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 6px;
-    border: 1px solid #aaa;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-.entry-panel textarea {
-    height: 80px;
-}
-
-/* Buttons */
-.clearBtn, .printBtn {
-    width: 48%;
-    padding: 10px;
-    border: none;
+header {
+    text-align: center;
+    padding: 18px;
+    background: var(--accent);
     color: white;
-    font-size: 16px;
-    margin-top: 15px;
-    cursor: pointer;
-    border-radius: 8px;
-}
-
-.clearBtn {
-    background: #d9534f;
-}
-
-.printBtn {
-    background: #002060;
-}
-
-/* RIGHT SIDE PREVIEW */
-.preview-panel {
-    width: 60%;
-    padding: 30px;
-    background: white;
-    overflow-y: auto;
-}
-
-.header {
+    font-size: 1.4rem;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
-.header-right {
-    text-align: right;
-    color: #002060;
+.controls {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    flex-wrap: wrap;
 }
 
-/* RX SECTION */
-.rx-title {
-    font-size: 24px;
-    margin-top: 15px;
-    color: #002060;
-    font-weight: bold;
+input, select {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #999;
+    width: 250px;
 }
 
-.signature {
-    text-align: right;
-    margin-top: 80px;
-    color: #002060;
-    font-size: 14px;
+/* Cards */
+.results {
+    padding: 20px;
 }
 
-/* PRINT MODE */
-@media print {
-
-    body {
-        background: white;
-    }
-
-    .entry-panel {
-        display: none;
-    }
-
-    .preview-panel {
-        width: 100%;
-        padding: 20px;
-    }
+.card {
+    background: var(--card-bg);
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 5px solid var(--accent);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* MOBILE VIEW */
-@media (max-width: 768px) {
-
-    .container {
-        display: block;
-    }
-
-    .entry-panel, .preview-panel {
-        width: 100%;
-        height: auto;
-    }
+.card b {
+    font-size: 1.2rem;
 }
+
+/* Theme Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 34px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
