@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prescription Maker</title>
+<title>Full Prescription Maker</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -36,19 +36,18 @@ button:hover { background-color: #003366; }
 
 .prescription {
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    min-height: 29.7cm; /* A4 height */
+    padding: 40px 60px;
     background: #fff;
-    padding: 20px;
     border: 2px solid #004080;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 5px;
+    box-sizing: border-box;
     color: #000;
     line-height: 1.5;
 }
 .prescription h3, .prescription h4 { margin: 5px 0; text-align: center; }
-.block { margin: 10px 0; }
-.signature { text-align: right; margin-top: 40px; }
+.block { margin: 12px 0; }
+.signature { text-align: right; margin-top: 80px; font-weight: bold; }
 
 .drug-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
 .drug-table th, .drug-table td { border: 1px solid #ccc; padding: 5px; text-align: left; }
@@ -59,9 +58,9 @@ button:hover { background-color: #003366; }
 @media print {
     body * { visibility: hidden; }
     .prescription, .prescription * { visibility: visible; }
-    .prescription { margin: 0; width: 100%; max-width: 100%; box-shadow: none; border: 1px solid #000; padding: 20px; }
-    .prescription ul { list-style: none; padding-left: 0; }
+    .prescription { margin: 0; width: 100%; height: 29.7cm; box-shadow: none; border: 1px solid #000; padding: 40px 60px; }
     .form-container { display: none; }
+    ul { list-style: none; padding-left: 0; }
 }
 </style>
 </head>
@@ -80,19 +79,31 @@ button:hover { background-color: #003366; }
         <label>Patient Name</label>
         <input type="text" id="patientName" placeholder="Patient Name">
 
-        <label>Age</label>
-        <input type="text" id="patientAge" placeholder="25">
+        <label>Date of Birth</label>
+        <input type="date" id="dob" onchange="updatePreview()">
 
         <label>Gender</label>
-        <select id="patientGender">
+        <select id="patientGender" onchange="updatePreview()">
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
         </select>
 
+        <label>Date of Prescription</label>
+        <input type="date" id="prescriptionDate">
+
+        <label>Chief Complaints</label>
+        <textarea id="complaints" rows="2" placeholder="Chief Complaints..."></textarea>
+
+        <label>On Examination</label>
+        <textarea id="examination" rows="2" placeholder="On Examination..."></textarea>
+
+        <label>Investigations</label>
+        <textarea id="investigations" rows="2" placeholder="Investigations..."></textarea>
+
         <label>Diagnosis</label>
-        <textarea id="diagnosis" rows="2" placeholder="Diagnosis details..."></textarea>
+        <textarea id="diagnosis" rows="2" placeholder="Diagnosis..."></textarea>
 
         <label>Drugs</label>
         <table class="drug-table" id="drugTable">
@@ -105,9 +116,7 @@ button:hover { background-color: #003366; }
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Dynamic rows -->
-            </tbody>
+            <tbody></tbody>
         </table>
         <button type="button" onclick="addDrugRow()">+ Add Drug</button>
 
@@ -121,8 +130,12 @@ button:hover { background-color: #003366; }
             <h3 id="docNamePreview">Dr. Name, Credentials</h3>
             <h4 id="clinicPreview">Clinic / Hospital</h4>
             <hr>
+            <div class="block"><strong>Date:</strong> <span id="datePreview">--</span></div>
             <div class="block"><strong>Patient:</strong> <span id="patientPreview">Name</span></div>
-            <div class="block"><strong>Age / Gender:</strong> <span id="ageGenderPreview">--</span></div>
+            <div class="block"><strong>DOB / Age / Gender:</strong> <span id="dobAgeGenderPreview">--</span></div>
+            <div class="block"><strong>Chief Complaints:</strong> <span id="complaintsPreview">--</span></div>
+            <div class="block"><strong>On Examination:</strong> <span id="examinationPreview">--</span></div>
+            <div class="block"><strong>Investigations:</strong> <span id="investigationsPreview">--</span></div>
             <div class="block"><strong>Diagnosis:</strong> <span id="diagnosisPreview">--</span></div>
             <div class="block"><strong>Prescription / Medicines:</strong>
                 <ul id="drugsPreview"></ul>
@@ -133,14 +146,36 @@ button:hover { background-color: #003366; }
 </div>
 
 <script>
-// Update preview
+// Auto-set today's date
+document.getElementById('prescriptionDate').valueAsDate = new Date();
+
+function calculateAge(dob) {
+    if(!dob) return '--';
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+}
+
 function updatePreview() {
     document.getElementById('docNamePreview').innerText = document.getElementById('doctorName').value || 'Dr. Name, Credentials';
     document.getElementById('clinicPreview').innerText = document.getElementById('clinicName').value || 'Clinic / Hospital';
-    document.getElementById('patientPreview').innerText = document.getElementById('patientName').value || '--';
-    const age = document.getElementById('patientAge').value || '--';
+
+    const patientName = document.getElementById('patientName').value || '--';
+    const dob = document.getElementById('dob').value;
+    const age = calculateAge(dob);
     const gender = document.getElementById('patientGender').value || '--';
-    document.getElementById('ageGenderPreview').innerText = age + ' / ' + gender;
+    document.getElementById('patientPreview').innerText = patientName;
+    document.getElementById('dobAgeGenderPreview').innerText = `${dob || '--'} / ${age} yr / ${gender}`;
+    
+    const date = document.getElementById('prescriptionDate').value || '--';
+    document.getElementById('datePreview').innerText = date;
+
+    document.getElementById('complaintsPreview').innerText = document.getElementById('complaints').value || '--';
+    document.getElementById('examinationPreview').innerText = document.getElementById('examination').value || '--';
+    document.getElementById('investigationsPreview').innerText = document.getElementById('investigations').value || '--';
     document.getElementById('diagnosisPreview').innerText = document.getElementById('diagnosis').value || '--';
 
     const drugsPreview = document.getElementById('drugsPreview');
@@ -149,13 +184,12 @@ function updatePreview() {
         const cells = row.querySelectorAll('input');
         if(cells[0].value.trim() !== ''){
             const li = document.createElement('li');
-            li.innerHTML = `${cells[0].value}<br>Dose: ${cells[1].value || '-'}<br>Times/Day: ${cells[2].value || '-'}<br>Duration: ${cells[3].value || '-'}`;
+            li.innerText = `${cells[0].value} - ${cells[1].value || '-'} - ${cells[2].value || '-'} - ${cells[3].value || '-'}`;
             drugsPreview.appendChild(li);
         }
     });
 }
 
-// Add new drug row
 function addDrugRow() {
     const tbody = document.querySelector('#drugTable tbody');
     const tr = document.createElement('tr');
@@ -169,14 +203,13 @@ function addDrugRow() {
     tbody.appendChild(tr);
 }
 
-// Clear form
 function clearForm() {
     document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
     document.querySelector('#drugTable tbody').innerHTML = '';
+    document.getElementById('prescriptionDate').valueAsDate = new Date();
     updatePreview();
 }
 
-// Print prescription
 function printPrescription() { window.print(); }
 
 // Initialize
