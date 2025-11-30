@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prescription App with Drug Type</title>
+<title>Live Prescription Preview</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f2f2f2; }
 .container { max-width:1200px; margin:0 auto; padding:20px; }
@@ -23,8 +23,10 @@ button:hover { background:#003366; }
 .header h3, .header h4 { margin:2px 0; }
 .patient-info { margin-bottom:20px; }
 .patient-info div.row { display:flex; justify-content:space-between; width:100%; }
+
 .content { display:flex; gap:20px; border-top:2px solid #000; padding-top:20px; min-height:400px; }
-.left { width:33%; padding-right:10px; border-right:2px solid #000; }
+.left { width:33%; padding-right:10px; border-right:2px solid #000; display:flex; flex-direction:column; justify-content:space-between; }
+.left div { margin-bottom:20px; }
 .right { width:67%; padding-left:10px; }
 .signature { text-align:right; margin-top:80px; font-weight:bold; }
 
@@ -50,12 +52,12 @@ button:hover { background:#003366; }
 
     <!-- Patient Info -->
     <label>Patient Name</label>
-    <input type="text" id="patientName" placeholder="Full Name">
+    <input type="text" id="patientName" placeholder="Full Name" oninput="updatePreview()">
 
     <div class="patient-row">
         <div>
             <label>Gender</label>
-            <select id="patientGender">
+            <select id="patientGender" onchange="updatePreview()">
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -64,35 +66,35 @@ button:hover { background:#003366; }
         </div>
         <div>
             <label>Age</label>
-            <input type="number" id="patientAge" placeholder="Age">
+            <input type="number" id="patientAge" placeholder="Age" oninput="updatePreview()">
         </div>
         <div>
             <label>Weight (kg)</label>
-            <input type="number" id="patientWeight" placeholder="Weight">
+            <input type="number" id="patientWeight" placeholder="Weight" oninput="updatePreview()">
         </div>
     </div>
 
     <label class="no-print">Date of Birth (optional for auto age)</label>
-    <input type="date" id="dob" class="no-print" onchange="calculateDOBAge()">
+    <input type="date" id="dob" class="no-print" onchange="calculateDOBAge(); updatePreview();">
 
     <label>Date of Prescription</label>
-    <input type="date" id="prescriptionDate">
+    <input type="date" id="prescriptionDate" onchange="updatePreview()">
 
     <!-- Doctor Info -->
     <label>Doctor Name & Credentials</label>
-    <input type="text" id="doctorName" placeholder="Dr. A B C, MBBS, FCPS">
+    <input type="text" id="doctorName" placeholder="Dr. A B C, MBBS, FCPS" oninput="updatePreview()">
     <label>Clinic / Hospital</label>
-    <input type="text" id="clinicName" placeholder="City Clinic">
+    <input type="text" id="clinicName" placeholder="City Clinic" oninput="updatePreview()">
 
     <!-- Prescription Details -->
     <label>Chief Complaints</label>
-    <textarea id="complaints" rows="2"></textarea>
+    <textarea id="complaints" rows="2" oninput="updatePreview()"></textarea>
     <label>On Examination</label>
-    <textarea id="examination" rows="2"></textarea>
+    <textarea id="examination" rows="2" oninput="updatePreview()"></textarea>
     <label>Investigations</label>
-    <textarea id="investigations" rows="2"></textarea>
+    <textarea id="investigations" rows="2" oninput="updatePreview()"></textarea>
     <label>Diagnosis</label>
-    <textarea id="diagnosis" rows="2"></textarea>
+    <textarea id="diagnosis" rows="2" oninput="updatePreview()"></textarea>
 
     <!-- Drugs -->
     <label>Drugs</label>
@@ -109,7 +111,6 @@ button:hover { background:#003366; }
         <tbody></tbody>
     </table>
     <button type="button" onclick="addDrugRow()">+ Add Drug</button>
-    <button type="button" onclick="updatePreview()">Update Preview</button>
     <button type="button" onclick="printPrescription()">Print Prescription</button>
 
     <!-- Prescription Preview -->
@@ -183,7 +184,7 @@ function addDrugRow(){
     tbody.appendChild(tr);
 }
 
-// Update Preview
+// Live update preview
 function updatePreview(){
     document.getElementById('docNamePreview').innerText=document.getElementById('doctorName').value||'Dr. Name, Credentials';
     document.getElementById('clinicPreview').innerText=document.getElementById('clinicName').value||'Clinic / Hospital';
@@ -201,13 +202,12 @@ function updatePreview(){
     document.getElementById('complaintsPreview').innerText=document.getElementById('complaints').value||'--';
     document.getElementById('examinationPreview').innerText=document.getElementById('examination').value||'--';
     document.getElementById('investigationsPreview').innerText=document.getElementById('investigations').value||'--';
-    document.getElementById('diagnosisPreview').innerText=document.getElementById('diagnosis').value||'--';
 
     const drugsPreview=document.getElementById('drugsPreview');
     drugsPreview.innerHTML='';
     document.querySelectorAll('#drugTable tbody tr').forEach(row=>{
         const cells=row.querySelectorAll('input, select');
-        if(cells[1].value.trim()!==''){ // Drug Name must not be empty
+        if(cells[1].value.trim()!==''){ 
             const type = cells[0].value ? cells[0].value + ' ' : '';
             const li=document.createElement('li');
             li.innerText=`${type}${cells[1].value} - ${cells[2].value||'-'} - ${cells[3].value||'-'} - ${cells[4].value||'-'}`;
