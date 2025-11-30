@@ -1,13 +1,4 @@
-/* Fonts + Base Theme */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    transition: 0.3s ease;
-}
-
+/* Base Theme */
 :root {
     --bg: #ffffff;
     --text: #000000;
@@ -22,22 +13,35 @@ body.dark {
     --accent: #4d9aff;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.3s ease;
+}
+
 header {
-    text-align: center;
-    padding: 18px;
-    background: var(--accent);
-    color: white;
-    font-size: 1.4rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px 20px;
+    background: var(--accent);
+    color: white;
+    flex-wrap: wrap;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 5px 0;
 }
 
 .controls {
     display: flex;
-    gap: 12px;
-    padding: 15px;
     flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px 20px;
 }
 
 input, select {
@@ -45,17 +49,20 @@ input, select {
     font-size: 1rem;
     border-radius: 8px;
     border: 1px solid #999;
-    width: 250px;
+    flex: 1;
+    min-width: 180px;
 }
 
-/* Cards */
 .results {
     padding: 20px;
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+/* Card style */
 .card {
     background: var(--card-bg);
-    margin-bottom: 15px;
     padding: 15px;
     border-radius: 10px;
     border-left: 5px solid var(--accent);
@@ -63,7 +70,7 @@ input, select {
 }
 
 .card b {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* Theme Switch */
@@ -73,40 +80,29 @@ input, select {
     width: 45px;
     height: 22px;
 }
-
-.switch input {
-    display: none;
-}
-
+.switch input { display: none; }
 .slider {
     position: absolute;
     cursor: pointer;
     background-color: #ccc;
     border-radius: 34px;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     transition: .4s;
 }
-
 .slider:before {
     position: absolute;
     content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
+    height: 16px; width: 16px;
+    left: 3px; bottom: 3px;
     background-color: white;
     border-radius: 50%;
     transition: .4s;
 }
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider:before { transform: translateX(22px); }
 
-input:checked + .slider {
-    background-color: var(--accent);
+/* Responsive adjustments */
+@media(max-width:768px){
+    .controls { flex-direction: column; }
+    input, select { width: 100%; }
 }
-
-input:checked + .slider:before {
-    transform: translateX(22px);
-}
-
