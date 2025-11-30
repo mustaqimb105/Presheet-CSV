@@ -66,77 +66,100 @@ input:checked + .slider:before{transform:translateX(22px);}
 <script>
 let medicines=[], generics=[], manufacturers=[];
 const files=[
-{name:"generic", target:generics},
-{name:"manufacturer", target:manufacturers},
-{name:"medicine", target:medicines}
+    {name:"generic", target:generics},
+    {name:"manufacturer", target:manufacturers},
+    {name:"medicine", target:medicines}
 ];
 let loadCount=0;
 files.forEach(file=>{
-Papa.parse(`data/${file.name}.csv`,{download:true,header:true,complete:function(results){
-file.target.push(...results.data); loadCount++; if(loadCount===files.length) initApp();
-}});
+    Papa.parse(`data/${file.name}.csv`,{download:true,header:true,skipEmptyLines:true,complete:function(results){
+        file.target.push(...results.data); 
+        loadCount++; 
+        if(loadCount===files.length) initApp();
+    }});
 });
 
-function initApp(){ populateFilters(); displayResults(medicines); }
-function mapField(list,idField,nameField,value){ const item=list.find(x=>x.ID===value); return item? item[nameField]:"N/A"; }
-function populateFilters(){
-populateSelect("filterGeneric",generics); populateSelect("filterManufacturer",manufacturers);
-}
-function populateSelect(selectId,data){
-const select=document.getElementById(selectId);
-[...new Set(data.map(d=>d.Name).filter(Boolean))].sort().forEach(v=>select.innerHTML+=`<option value="${v}">${v}</option>`);
+function initApp(){
+    populateFilters();
+    displayResults(medicines);
 }
 
+function mapField(list,idField,nameField,value){
+    const item = list.find(x => x[idField] === value);
+    return item ? item[nameField] : "N/A";
+}
+
+function populateFilters(){
+    populateSelect("filterGeneric",generics,"generic name");
+    populateSelect("filterManufacturer",manufacturers,"manufacturer name");
+}
+
+function populateSelect(selectId,data,nameField){
+    const select=document.getElementById(selectId);
+    [...new Set(data.map(d=>d[nameField]).filter(Boolean))].sort().forEach(v=>{
+        select.innerHTML+=`<option value="${v}">${v}</option>`;
+    });
+}
+
+// Event listeners
 document.getElementById("searchBox").addEventListener("input", filterData);
 ["filterGeneric","filterManufacturer"].forEach(id=>document.getElementById(id).addEventListener("change",filterData));
 
 function filterData(){
-const q=document.getElementById("searchBox").value.toLowerCase();
-const gen=document.getElementById("filterGeneric").value;
-const man=document.getElementById("filterManufacturer").value;
-const filtered=medicines.filter(m=>{
-const medicineName=m.Name?.toLowerCase()||"";
-const genericName=mapField(generics,"ID","Name",m.GenericID).toLowerCase();
-const manufacturerName=mapField(manufacturers,"ID","Name",m.ManufacturerID).toLowerCase();
-return (medicineName.includes(q)||genericName.includes(q)||manufacturerName.includes(q))
-&&(gen===""||genericName===gen.toLowerCase())
-&&(man===""||manufacturerName===man.toLowerCase());
-});
-displayResults(filtered);
+    const q=document.getElementById("searchBox").value.toLowerCase();
+    const gen=document.getElementById("filterGeneric").value.toLowerCase();
+    const man=document.getElementById("filterManufacturer").value.toLowerCase();
+    const filtered=medicines.filter(m=>{
+        const medicineName = (m["brand name"]||"").toLowerCase();
+        const genericName = mapField(generics,"generic id","generic name",m["generic"]).toLowerCase();
+        const manufacturerName = mapField(manufacturers,"manufacturer id","manufacturer name",m["manufacturer"]).toLowerCase();
+        return (medicineName.includes(q)||genericName.includes(q)||manufacturerName.includes(q))
+            &&(gen===""||genericName===gen)
+            &&(man===""||manufacturerName===man);
+    });
+    displayResults(filtered);
 }
 
 function displayResults(data){
-const div=document.getElementById("results");
-if(!data.length){ div.innerHTML="<p>No results found.</p>"; return; }
-div.innerHTML=data.map(m=>{
-const genericName=mapField(generics,"ID","Name",m.GenericID);
-const manufacturerName=mapField(manufacturers,"ID","Name",m.ManufacturerID);
-return `<div class="card">
-<b>${m.Name||"Unknown"}</b><br>
-Generic: ${genericName}<br>
-Manufacturer: ${manufacturerName}<br>
-Price: ${m.Price||"N/A"}<br>
-<button onclick="addPrescription('${m.ID}')">Add</button>
-</div>`;
-}).join('');
+    const div=document.getElementById("results");
+    if(!data.length){ div.innerHTML="<p>No results found.</p>"; return; }
+    div.innerHTML=data.map(m=>{
+        const medicineName = m["brand name"] || "Unknown";
+        const genericName = mapField(generics,"generic id","generic name",m["generic"]);
+        const manufacturerName = mapField(manufacturers,"manufacturer id","manufacturer name",m["manufacturer"]);
+        return `<div class="card">
+            <b>${medicineName}</b><br>
+            Generic: ${genericName}<br>
+            Manufacturer: ${manufacturerName}<br>
+            <button onclick="addPrescription('${medicineName}')">Add</button>
+        </div>`;
+    }).join('');
 }
 
 // Prescription logic
 let prescriptionList=[];
-function addPrescription(medID){ if(prescriptionList.find(p=>p.ID===medID)) return; const med=medicines.find(m=>m.ID===medID); prescriptionList.push(med.Name); renderPrescription();}
-function renderPrescription(){ 
-const ul=document.getElementById("prescriptionList");
-ul.innerHTML=prescriptionList.map(name=>`<li>${name}</li>`).join(''); 
+function addPrescription(name){
+    if(prescriptionList.includes(name)) return;
+    prescriptionList.push(name);
+    renderPrescription();
 }
+
+function renderPrescription(){
+    const ul=document.getElementById("prescriptionList");
+    ul.innerHTML=prescriptionList.map(name=>`<li>${name}</li>`).join('');
+}
+
 function printPrescription(){
-const patient=document.getElementById("patientName").value||"N/A";
-const doctor=document.getElementById("doctorName").value||"N/A";
-const notes=document.getElementById("notes").value||"";
-let content=`<h2 style="text-align:center;">Prescription</h2>
-<p><b>Patient:</b> ${patient}<br><b>Doctor:</b> ${doctor}</p>
-<ul>${prescriptionList.map(m=>`<li>${m}</li>`).join('')}</ul>
-<p><b>Notes:</b> ${notes}</p>`;
-const win=window.open("","PRINT","height=600,width=800"); win.document.write(`<html><head><title>Prescription</title></head><body>${content}</body></html>`); win.document.close(); win.focus(); win.print(); win.close();
+    const patient=document.getElementById("patientName").value||"N/A";
+    const doctor=document.getElementById("doctorName").value||"N/A";
+    const notes=document.getElementById("notes").value||"";
+    let content=`<h2 style="text-align:center;">Prescription</h2>
+        <p><b>Patient:</b> ${patient}<br><b>Doctor:</b> ${doctor}</p>
+        <ul>${prescriptionList.map(m=>`<li>${m}</li>`).join('')}</ul>
+        <p><b>Notes:</b> ${notes}</p>`;
+    const win=window.open("","PRINT","height=600,width=800");
+    win.document.write(`<html><head><title>Prescription</title></head><body>${content}</body></html>`);
+    win.document.close(); win.focus(); win.print(); win.close();
 }
 
 // Dark mode toggle
