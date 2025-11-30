@@ -77,6 +77,22 @@
     @media (max-width: 768px) {
         .container { flex-direction: column; }
     }
+
+    /* Print Styles */
+    @media print {
+        body * { visibility: hidden; }
+        .prescription, .prescription * {
+            visibility: visible;
+        }
+        .prescription {
+            margin: 0;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: none;
+            border: 1px solid #000;
+            padding: 20px;
+        }
+    }
 </style>
 </head>
 <body>
@@ -113,6 +129,7 @@
         <textarea id="notes" rows="2" placeholder="Any instructions..."></textarea>
 
         <button onclick="clearForm()">Clear Form</button>
+        <button onclick="printPrescription()">Print Prescription</button>
     </div>
 
     <!-- Prescription Preview -->
@@ -156,6 +173,11 @@ document.querySelectorAll('input, textarea').forEach(el => {
 function clearForm() {
     document.querySelectorAll('input, textarea').forEach(el => el.value = '');
     updatePreview();
+}
+
+// Print prescription
+function printPrescription() {
+    window.print();
 }
 
 // Initialize preview
