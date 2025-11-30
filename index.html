@@ -3,99 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prescription Builder</title>
+    <title>Bangladesh Medicine Presheet</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <!-- CSV Parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 
 <body>
-<div class="container">
+    <header>
+        <h1>Bangladesh Medicine Database</h1>
 
-    <!-- LEFT SIDE DATA ENTRY -->
-    <div class="entry-panel">
-        <h2>Prescription Data Entry</h2>
-
-        <!-- Doctor Info -->
-        <h3>Doctor Info</h3>
-        <input id="docName" placeholder="Doctor Name (e.g., Dr. A B C)">
-        <input id="docDegree" placeholder="Degrees (e.g., MBBS, FCPS)">
-        <input id="docClinic" placeholder="Clinic Name">
-        <input id="docPhone" placeholder="Phone Number">
-
-        <hr>
-
-        <!-- Patient Info -->
-        <h3>Patient Info</h3>
-        <input id="ptName" placeholder="Patient Name">
-        <input id="ptAge" placeholder="Age / Sex">
-        <input id="ptDate" type="date">
-
-        <hr>
-
-        <!-- Complaint -->
-        <h3>C/C</h3>
-        <textarea id="cc" placeholder="Chief Complaint..."></textarea>
-
-        <!-- Examination -->
-        <h3>O/E</h3>
-        <textarea id="oe" placeholder="On Examination..."></textarea>
-
-        <!-- Investigation -->
-        <h3>Investigation</h3>
-        <textarea id="inv" placeholder="Investigation Advice..."></textarea>
-
-        <hr>
-
-        <!-- RX -->
-        <h3>RX</h3>
-        <textarea id="rx" placeholder="Write medicines..."></textarea>
-
-        <button onclick="clearAll()" class="clearBtn">Clear All</button>
-        <button onclick="window.print()" class="printBtn">Print</button>
-    </div>
-
-    <!-- RIGHT SIDE PREVIEW -->
-    <div class="preview-panel" id="printArea">
-        <div class="header">
-            <div class="header-left">
-                <h1>Prescription</h1>
-                <p><strong>Date:</strong> <span id="prevDate"></span></p>
-            </div>
-
-            <div class="header-right">
-                <h2 id="prevDocName"></h2>
-                <p id="prevDocDegree"></p>
-                <p id="prevDocClinic"></p>
-                <p id="prevDocPhone"></p>
-            </div>
+        <div class="theme-toggle">
+            <label class="switch">
+                <input type="checkbox" id="themeSwitch">
+                <span class="slider"></span>
+            </label>
+            <span id="themeLabel">Dark</span>
         </div>
+    </header>
 
-        <hr>
+    <section class="controls">
+        <input type="text" id="searchBox" placeholder="Search medicine, generic, or company...">
 
-        <p><strong>Patient:</strong> <span id="prevPtName"></span></p>
-        <p><strong>Age/Sex:</strong> <span id="prevPtAge"></span></p>
+        <select id="filterGeneric">
+            <option value="">Filter by Generic</option>
+        </select>
 
-        <hr>
+        <select id="filterCompany">
+            <option value="">Filter by Company</option>
+        </select>
+    </section>
 
-        <h3>C/C</h3>
-        <p id="prevCC"></p>
+    <section id="results" class="results"></section>
 
-        <h3>O/E</h3>
-        <p id="prevOE"></p>
-
-        <h3>Investigation</h3>
-        <p id="prevINV"></p>
-
-        <h2 class="rx-title">Rx</h2>
-        <p id="prevRX" class="rx-body"></p>
-
-        <div class="signature">
-            <p>----------------------------</p>
-            <p>Doctor’s Signature</p>
-        </div>
-    </div>
-
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
