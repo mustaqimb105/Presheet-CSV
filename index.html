@@ -3,102 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prescription Maker</title>
+<title>Dynamic Prescription Maker</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f2f2f2;
-    }
-    .container {
-        display: flex;
-        flex-wrap: wrap;
-        padding: 10px;
-        gap: 10px;
-    }
-    .form-container, .preview-container {
-        background: #fff;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        flex: 1 1 300px;
-    }
-    .form-container {
-        min-width: 280px;
-    }
-    .preview-container {
-        min-width: 280px;
-        overflow-x: auto;
-    }
-    h2 { margin-top: 0; color: #004080; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, textarea {
-        width: 100%;
-        padding: 8px;
-        margin-top: 3px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-    }
-    textarea { resize: vertical; }
-    button {
-        margin-top: 15px;
-        padding: 10px 15px;
-        border: none;
-        background-color: #004080;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    button:hover { background-color: #003366; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f2f2f2;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 10px;
+}
+.form-container, .preview-container {
+    background: #fff;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    flex: 1 1 300px;
+}
+.form-container { min-width: 280px; }
+.preview-container { min-width: 280px; overflow-x: auto; }
 
-    /* Prescription styling */
-    .prescription {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        background: #fff;
-        padding: 20px;
-        border: 2px solid #004080;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        color: #000;
-    }
-    .prescription h3, .prescription h4 {
-        margin: 5px 0;
-        text-align: center;
-    }
-    .block { margin: 10px 0; }
-    .flex-row { display: flex; justify-content: space-between; }
-    .signature { text-align: right; margin-top: 40px; }
+h2 { margin-top: 0; color: #004080; }
+label { display: block; margin-top: 10px; font-weight: bold; }
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 3px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+textarea { resize: vertical; }
+button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #004080;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover { background-color: #003366; }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .container { flex-direction: column; }
-    }
+.prescription {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border: 2px solid #004080;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    color: #000;
+}
+.prescription h3, .prescription h4 { margin: 5px 0; text-align: center; }
+.block { margin: 10px 0; }
+.signature { text-align: right; margin-top: 40px; }
 
-    /* Print Styles */
-    @media print {
-        body * { visibility: hidden; }
-        .prescription, .prescription * {
-            visibility: visible;
-        }
-        .prescription {
-            margin: 0;
-            width: 100%;
-            max-width: 100%;
-            box-shadow: none;
-            border: 1px solid #000;
-            padding: 20px;
-        }
-    }
+.drug-row { display: flex; gap: 5px; margin-top: 5px; }
+.drug-row input { flex: 1; }
+.remove-drug { background-color: #cc0000; }
+
+@media (max-width: 768px) { .container { flex-direction: column; } }
+
+@media print {
+    body * { visibility: hidden; }
+    .prescription, .prescription * { visibility: visible; }
+    .prescription { margin: 0; width: 100%; max-width: 100%; box-shadow: none; border: 1px solid #000; padding: 20px; }
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Data Entry Form -->
+    <!-- Form -->
     <div class="form-container">
         <h2>Prescription Maker</h2>
         <label>Doctor Name & Credentials</label>
@@ -110,29 +92,29 @@
         <label>Patient Name</label>
         <input type="text" id="patientName" placeholder="Patient Name">
 
-        <label>Age / Gender</label>
-        <input type="text" id="ageGender" placeholder="25 / M">
+        <label>Age</label>
+        <input type="text" id="patientAge" placeholder="25">
 
-        <label>Complaints</label>
-        <textarea id="complaints" rows="3" placeholder="Patient complaints..."></textarea>
+        <label>Gender</label>
+        <select id="patientGender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
 
-        <label>Examination / Findings</label>
-        <textarea id="examination" rows="3" placeholder="O/E..."></textarea>
+        <label>Diagnosis</label>
+        <textarea id="diagnosis" rows="2" placeholder="Diagnosis details..."></textarea>
 
-        <label>Investigations</label>
-        <textarea id="investigations" rows="2" placeholder="Lab tests..."></textarea>
+        <label>Drugs</label>
+        <div id="drugContainer"></div>
+        <button type="button" onclick="addDrug()">+ Add Drug</button>
 
-        <label>Prescription / Medicines</label>
-        <textarea id="medicines" rows="4" placeholder="Rx..."></textarea>
-
-        <label>Doctor Notes</label>
-        <textarea id="notes" rows="2" placeholder="Any instructions..."></textarea>
-
-        <button onclick="clearForm()">Clear Form</button>
-        <button onclick="printPrescription()">Print Prescription</button>
+        <button type="button" onclick="clearForm()">Clear Form</button>
+        <button type="button" onclick="printPrescription()">Print Prescription</button>
     </div>
 
-    <!-- Prescription Preview -->
+    <!-- Preview -->
     <div class="preview-container">
         <div class="prescription" id="prescriptionPreview">
             <h3 id="docNamePreview">Dr. Name, Credentials</h3>
@@ -140,47 +122,72 @@
             <hr>
             <div class="block"><strong>Patient:</strong> <span id="patientPreview">Name</span></div>
             <div class="block"><strong>Age / Gender:</strong> <span id="ageGenderPreview">--</span></div>
-            <div class="block"><strong>Complaints:</strong> <span id="complaintsPreview">--</span></div>
-            <div class="block"><strong>Examination / Findings:</strong> <span id="examinationPreview">--</span></div>
-            <div class="block"><strong>Investigations:</strong> <span id="investigationsPreview">--</span></div>
-            <div class="block"><strong>Prescription / Medicines:</strong> <span id="medicinesPreview">--</span></div>
-            <div class="block"><strong>Notes:</strong> <span id="notesPreview">--</span></div>
+            <div class="block"><strong>Diagnosis:</strong> <span id="diagnosisPreview">--</span></div>
+            <div class="block"><strong>Prescription / Medicines:</strong>
+                <ul id="drugsPreview"></ul>
+            </div>
             <div class="signature">Doctor Signature</div>
         </div>
     </div>
 </div>
 
 <script>
-// Function to update preview
+// Functions
 function updatePreview() {
     document.getElementById('docNamePreview').innerText = document.getElementById('doctorName').value || 'Dr. Name, Credentials';
     document.getElementById('clinicPreview').innerText = document.getElementById('clinicName').value || 'Clinic / Hospital';
     document.getElementById('patientPreview').innerText = document.getElementById('patientName').value || '--';
-    document.getElementById('ageGenderPreview').innerText = document.getElementById('ageGender').value || '--';
-    document.getElementById('complaintsPreview').innerText = document.getElementById('complaints').value || '--';
-    document.getElementById('examinationPreview').innerText = document.getElementById('examination').value || '--';
-    document.getElementById('investigationsPreview').innerText = document.getElementById('investigations').value || '--';
-    document.getElementById('medicinesPreview').innerText = document.getElementById('medicines').value || '--';
-    document.getElementById('notesPreview').innerText = document.getElementById('notes').value || '--';
+    const age = document.getElementById('patientAge').value || '--';
+    const gender = document.getElementById('patientGender').value || '--';
+    document.getElementById('ageGenderPreview').innerText = age + ' / ' + gender;
+    document.getElementById('diagnosisPreview').innerText = document.getElementById('diagnosis').value || '--';
+
+    const drugsPreview = document.getElementById('drugsPreview');
+    drugsPreview.innerHTML = '';
+    document.querySelectorAll('.drug-row input').forEach(drugInput => {
+        if (drugInput.value.trim() !== '') {
+            const li = document.createElement('li');
+            li.innerText = drugInput.value;
+            drugsPreview.appendChild(li);
+        }
+    });
 }
 
-// Attach input event listeners for live update
-document.querySelectorAll('input, textarea').forEach(el => {
-    el.addEventListener('input', updatePreview);
-});
-
-// Clear form
-function clearForm() {
-    document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+// Add drug row
+function addDrug(value='') {
+    const container = document.getElementById('drugContainer');
+    const row = document.createElement('div');
+    row.className = 'drug-row';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Drug name, dose, instructions';
+    input.value = value;
+    input.addEventListener('input', updatePreview);
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-drug';
+    removeBtn.innerText = 'Remove';
+    removeBtn.onclick = () => { row.remove(); updatePreview(); };
+    row.appendChild(input);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+    input.focus();
     updatePreview();
 }
 
-// Print prescription
+// Clear form
+function clearForm() {
+    document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+    document.getElementById('drugContainer').innerHTML = '';
+    updatePreview();
+}
+
+// Print
 function printPrescription() {
     window.print();
 }
 
-// Initialize preview
+// Initialize
 updatePreview();
 </script>
 
