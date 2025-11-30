@@ -1,37 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bangladesh Medicine Database</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bangladesh Medicine Prescription Tool</title>
 
-    <link rel="stylesheet" href="style.css">
-    <!-- PapaParse for CSV parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<!-- Embedded CSS -->
+<style>
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --card-bg: #f5f7ff;
+    --accent: #003d99;
+}
+body.dark {
+    --bg: #0f141a;
+    --text: #e6e6e6;
+    --card-bg: #1c2530;
+    --accent: #4d9aff;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.3s ease;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 15px 20px;
+    background: var(--accent);
+    color: white;
+}
+header h1 { margin: 5px 0; font-size: 1.5rem; }
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px 20px;
+}
+input, select { padding: 10px; font-size: 1rem; border-radius: 8px; border:1px solid #999; flex:1; min-width:180px; }
+#mainContainer { display:flex; flex-wrap:wrap; gap:20px; padding:20px; }
+#results { flex:2; display:grid; gap:15px; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); }
+.card { background: var(--card-bg); padding:15px; border-radius:10px; border-left:5px solid var(--accent); box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.card b { font-size:1.1rem; }
+.prescriptionPanel { flex:1; background: var(--card-bg); padding:15px; border-radius:10px; min-width:300px; max-width:400px; height:max-content;}
+.prescriptionPanel h2 { text-align:center; margin-top:0; }
+.prescriptionPanel input, .prescriptionPanel textarea { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #999; }
+.prescriptionTable { width:100%; border-collapse: collapse; margin-top:10px; }
+.prescriptionTable th, .prescriptionTable td { border:1px solid #999; padding:6px; text-align:left; }
+.prescriptionTable th { background: var(--accent); color:white; }
+button { padding:6px 12px; margin-top:6px; border:none; border-radius:6px; cursor:pointer; background:var(--accent); color:white; }
+button:hover { opacity:0.9; }
+
+/* Theme switch */
+.switch { position:relative; display:inline-block; width:45px; height:22px; }
+.switch input { display:none; }
+.slider { position:absolute; cursor:pointer; background-color:#ccc; border-radius:34px; top:0; left:0; right:0; bottom:0; transition:.4s; }
+.slider:before { position:absolute; content:""; height:16px; width:16px; left:3px; bottom:3px; background-color:white; border-radius:50%; transition:.4s; }
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider:before { transform:translateX(22px); }
+
+/* Responsive */
+@media(max-width:1024px){ #mainContainer{flex-direction:column;} }
+@media(max-width:768px){ .controls{flex-direction:column;} input,select{width:100%;} }
+</style>
+
+<!-- PapaParse -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Bangladesh Medicine Database</h1>
-        <div class="theme-toggle">
-            <label class="switch">
-                <input type="checkbox" id="themeSwitch">
-                <span class="slider"></span>
-            </label>
-            <span id="themeLabel">Dark</span>
-        </div>
-    </header>
+<header>
+    <h1>Bangladesh Medicine Prescription Tool</h1>
+    <div class="theme-toggle">
+        <label class="switch">
+            <input type="checkbox" id="themeSwitch">
+            <span class="slider"></span>
+        </label>
+        <span>Dark</span>
+    </div>
+</header>
 
-    <section class="controls">
-        <input type="text" id="searchBox" placeholder="Search medicines...">
-        
-        <select id="filterGeneric"><option value="">Filter by Generic</option></select>
-        <select id="filterManufacturer"><option value="">Filter by Manufacturer</option></select>
-        <select id="filterDrugClass"><option value="">Filter by Drug Class</option></select>
-        <select id="filterDosageForm"><option value="">Filter by Dosage Form</option></select>
-    </section>
+<section class="controls">
+    <input type="text" id="searchBox" placeholder="Search medicines...">
+    <select id="filterGeneric"><option value="">Filter by Generic</option></select>
+    <select id="filterManufacturer"><option value="">Filter by Manufacturer</option></select>
+    <select id="filterDrugClass"><option value="">Filter by Drug Class</option></select>
+    <select id="filterDosageForm"><option value="">Filter by Dosage Form</option></select>
+</section>
 
-    <section id="results" class="results"></section>
+<div id="mainContainer">
+    <div id="results"></div>
 
-    <script src="script.js"></script>
+    <div class="prescriptionPanel">
+        <h2>Prescription</h2>
+        <input type="text" id="patientName" placeholder="Patient Name">
+        <input type="text" id="doctorName" placeholder="Doctor Name">
+        <textarea id="notes" placeholder="Instructions / Notes"></textarea>
+        <table class="prescriptionTable">
+            <thead>
+                <tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Action</th></tr>
+            </thead>
+            <tbody id="prescriptionBody"></tbody>
+        </table>
+        <button onclick="printPrescription()">Print Prescription</button>
+    </div>
+</div>
+
+<!-- Embedded JS -->
+<script>
+let medicines=[], generics=[], manufacturers=[], indications=[], drugClasses=[], dosageForms=[];
+const files = [
+    {name:"generic", target:generics},
+    {name:"manufacturer", target:manufacturers},
+    {name:"indication", target:indications},
+    {name:"drug class", target:drugClasses},
+    {name:"dosage form", target:dosageForms},
+    {name:"medicine", target:medicines}
+];
+let loadCount=0;
+files.forEach(file=>{
+    Papa.parse(`data/${file.name}.csv`, {
+        download:true, header:true,
+        complete:function(results){ file.target.push(...results.data); loadCount++; if(loadCount===files.length)initApp(); }
+    });
+});
+
+function initApp(){
+    populateFilters(); displayResults(medicines);
+}
+function mapField(list,idField,nameField,value){ const item=list.find(x=>x.ID===value); return item? item[nameField]:"N/A"; }
+
+function populateFilters(){
+    populateSelect("filterGeneric",generics);
+    populateSelect("filterManufacturer",manufacturers);
+    populateSelect("filterDrugClass",drugClasses);
+    populateSelect("filterDosageForm",dosageForms);
+}
+function populateSelect(selectId,data){
+    const select=document.getElementById(selectId);
+    [...new Set(data.map(d=>d.Name).filter(Boolean))].sort().forEach(v=>select.innerHTML+=`<option value="${v}">${v}</option>`);
+}
+
+document.getElementById("searchBox").addEventListener("input", filterData);
+["filterGeneric","filterManufacturer","filterDrugClass","filterDosageForm"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", filterData);
+});
+
+function filterData(){
+    const q=document.getElementById("searchBox").value.toLowerCase();
+    const gen=document.getElementById("filterGeneric").value;
+    const man=document.getElementById("filterManufacturer").value;
+    const cls=document.getElementById("filterDrugClass").value;
+    const form=document.getElementById("filterDosageForm").value;
+
+    const filtered=medicines.filter(m=>{
+        const medicineName=m.Name?.toLowerCase()||"";
+        const genericName=mapField(generics,"ID","Name",m.GenericID).toLowerCase();
+        const manufacturerName=mapField(manufacturers,"ID","Name",m.ManufacturerID).toLowerCase();
+        const drugClassName=mapField(drugClasses,"ID","Name",m.DrugClassID).toLowerCase();
+        const dosageFormName=mapField(dosageForms,"ID","Name",m.DosageFormID).toLowerCase();
+        return (medicineName.includes(q) || genericName.includes(q) || manufacturerName.includes(q))
+            && (gen==="" || genericName===gen.toLowerCase())
+            && (man==="" || manufacturerName===man.toLowerCase())
+            && (cls==="" || drugClassName===cls.toLowerCase())
+            && (form==="" || dosageFormName===form.toLowerCase());
+    });
+    displayResults(filtered);
+}
+
+function displayResults(data){
+    const div=document.getElementById("results");
+    if(!data.length){ div.innerHTML="<p>No results found.</p>"; return; }
+    div.innerHTML=data.map(m=>{
+        const genericName=mapField(generics,"ID","Name",m.GenericID);
+        const manufacturerName=mapField(manufacturers,"ID","Name",m.ManufacturerID);
+        const drugClassName=mapField(drugClasses,"ID","Name",m.DrugClassID);
+        const dosageFormName=mapField(dosageForms,"ID","Name",m.DosageFormID);
+        const indicationName=mapField(indications,"ID","Name",m.IndicationID);
+        return `<div class="card">
+            <b>${m.Name||"Unknown"}</b><br>
+            Generic: ${genericName}<br>
+            Manufacturer: ${manufacturerName}<br>
+            Drug Class: ${drugClassName}<br>
+            Dosage Form: ${dosageFormName}<br>
+            Indication: ${indicationName}<br>
+            Price: ${m.Price||"N/A"}<br>
+            <button onclick="addPrescription('${m.ID}')">Add</button>
+        </div>`;
+    }).join('');
+}
+
+// Prescription logic
+let prescriptionList=[];
+function addPrescription(medID){
+    if(prescriptionList.find(p=>p.ID===medID)) return;
+    const med=medicines.find(m=>m.ID===medID);
+    prescriptionList.push({ID:med.ID, Name:med.Name, Dosage:"", Frequency:"", Duration:""});
+    renderPrescription();
+}
+function renderPrescription(){
+    const tbody=document.getElementById("prescriptionBody");
+    tbody.innerHTML=prescriptionList.map((p,i)=>`<tr>
+        <td>${p.Name}</td>
+        <td><input type="text" value="${p.Dosage}" onchange="updatePrescription(${i},'Dosage',this.value)"></td>
+        <td><input type="text" value="${p.Frequency}" onchange="updatePrescription(${i},'Frequency',this.value)"></td>
+        <td><input type="text" value="${p.Duration}" onchange="updatePrescription(${i},'Duration',this.value)"></td>
+        <td><button onclick="removePrescription(${i})">Remove</button></td>
+    </tr>`).join('');
+}
+function updatePrescription(index,field,value){ prescriptionList[index][field]=value; }
+function removePrescription(index){ prescriptionList.splice(index,1); renderPrescription(); }
+
+function printPrescription(){
+    const patient=document.getElementById("patientName").value||"N/A";
+    const doctor=document.getElementById("doctorName").value||"N/A";
+    const notes=document.getElementById("notes").value||"";
+    let content=`<h2 style="text-align:center;">Prescription</h2>
+        <p><b>Patient:</b> ${patient}<br><b>Doctor:</b> ${doctor}</p>
+        <table border="1" style="width:100%;border-collapse:collapse;">
+        <tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr>`;
+    prescriptionList.forEach(p=>{
+        content+=`<tr>
+            <td>${p.Name}</td>
+            <td>${p.Dosage}</td>
+            <td>${p.Frequency}</td>
+            <td>${p.Duration}</td>
+        </tr>`;
+    });
+    content+=`</table><p><b>Notes:</b> ${notes}</p>`;
+    const win=window.open("","PRINT","height=600,width=800");
+    win.document.write(`<html><head><title>Prescription</title></head><body>${content}</body></html>`);
+    win.document.close(); win.focus(); win.print(); win.close();
+}
+
+// Dark mode toggle
+document.getElementById("themeSwitch").addEventListener("change",()=>{ document.body.classList.toggle("dark"); });
+</script>
 </body>
 </html>
